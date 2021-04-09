@@ -47,6 +47,12 @@ decoded sequentially).
 After the appropriate environment variables are set, to compile,
 simply run
 
+To compile for RISC-V with OpenMP:
+
+* `make RV64=1 OPENMP=1`
+* note that this assumes the `riscv64-unknown-linux-gnu-c++` cross-compiler
+is located on your `PATH`
+
 ```
 $ make -j  #compiles with all threads
 ```

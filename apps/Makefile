@@ -1,3 +1,11 @@
+PCC ?= g++
+MARCH = native
+
+ifdef RV64
+PCC = riscv64-unknown-linux-gnu-c++
+MARCH = rv64g
+endif
+
 ifdef LONG
 INTT = -DLONG
 endif
@@ -24,7 +32,6 @@ endif
 
 #compilers
 ifdef CILK
-PCC = g++
 PCFLAGS = -std=c++14 -fcilkplus -lcilkrts -O3 -DCILK $(INTT) $(INTE) $(CODE) $(PD) $(MEM)
 PLFLAGS = -fcilkplus -lcilkrts
 
@@ -33,11 +40,9 @@ PCC = icpc
 PCFLAGS = -std=c++14 -O3 -DCILKP $(INTT) $(INTE) $(CODE) $(PD) $(MEM)
 
 else ifdef OPENMP
-PCC = g++
-PCFLAGS = -std=c++14 -fopenmp -march=native -O3 -DOPENMP $(INTT) $(INTE) $(CODE) $(PD) $(MEM)
+PCFLAGS = -std=c++14 -fopenmp -march=$(MARCH) -O3 -DOPENMP $(INTT) $(INTE) $(CODE) $(PD) $(MEM)
 
 else
-PCC = g++
 PCFLAGS = -std=c++14 -O3 $(INTT) $(INTE) $(CODE) $(PD) $(MEM)
 endif
 
