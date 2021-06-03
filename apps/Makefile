@@ -1,8 +1,11 @@
 PCC ?= g++
 MARCH = native
 
+# set this variable when invoking makefile if compiler not on PATH
+RV64_BIN ?= riscv64-unknown-linux-gnu-c++
+
 ifdef RV64
-PCC = riscv64-unknown-linux-gnu-c++
+PCC = $(RV64_BIN)
 MARCH = rv64g
 endif
 

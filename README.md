@@ -49,9 +49,10 @@ simply run
 
 To compile for RISC-V with OpenMP:
 
-* `make RV64=1 OPENMP=1`
+* `make RV64=1 OPENMP=1 [RV64_BIN=/path/to/bin/riscv64-unknown-linux-gnu-c++]`
 * note that this assumes the `riscv64-unknown-linux-gnu-c++` cross-compiler
 is located on your `PATH`
+* set `RV64_BIN` can be set to explicitly specify path to the RISC-V cross compiler
 
 ```
 $ make -j  #compiles with all threads
