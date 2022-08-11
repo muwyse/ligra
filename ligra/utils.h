@@ -331,6 +331,27 @@ inline void writeAdd(ET *a, ET b) {
   while (!CAS(a, oldV, newV));
 }
 
+#ifdef RISCV  // use -DRISCV when compiling
+// RISCV code equivalent amoadd locks the required memory
+inline long xaddl(long *variable, long value) {
+   asm volatile( 
+		"amoadd.d %0, %1, (%2);" 
+		: "=r" (value)                   //Output
+		: "r" (value), "r" (variable)  //Input
+		: );
+   return value;
+}
+
+inline int xaddi(int *variable, int value) {
+   asm volatile( 
+		"amoadd.w %0, %1, (%2);"
+		: "=r" (value)                   //Output
+		: "r" (value), "r" (variable)  //Input
+		: );
+   return value;
+}
+#else
+// original ligra code, x86 exclusive
 inline long xaddl(long *variable, long value) {
    asm volatile( 
 		"lock; xaddl %%eax, %2;"
@@ -348,6 +369,7 @@ inline int xaddi(int *variable, int value) {
 		:"memory" );
    return value;
 }
+#endif
 
 // The conditional should be removed by the compiler
 // this should work with pointer types, or pairs of integers
