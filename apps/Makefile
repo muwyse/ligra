@@ -54,6 +54,8 @@ TOOLCHAIN_PREFIX=riscv64-unknown-linux-gnu-
 EMULATOR = $(INSTALL_DIR)/bin/qemu-riscv64 -L $(INSTALL_DIR)/sysroot
 endif
 
+compressed ?= 0
+
 COMMON= ligra.h graph.h compressedVertex.h vertex.h utils.h IO.h parallel.h gettime.h index_map.h maybe.h sequence.h edgeMap_utils.h binary_search.h quickSort.h blockRadixSort.h transpose.h parseCommandLine.h byte.h byteRLE.h nibble.h byte-pd.h byteRLE-pd.h nibble-pd.h vertexSubset.h encoder.C decoder.C
 
 ALL= encoder decoder BFS BC BellmanFord Components Components-Shortcut Radii PageRank PageRankDelta BFSCC BFS-Bitvector KCore MIS Triangle CF
@@ -81,48 +83,58 @@ run_benchmarks: $(addprefix run_,$(BENCHMARKS))
 
 run_encoder:
 	$(EMULATOR) ./encoder.$(EXT) -s ../inputs/rMatGraph_J_5_100 ../inputs/rMatGraph_J_5_100.compressed \
-	2>&1 | tee -i $(LOG_DIR)/ligra-$(EXT)-encoder.log
+	2>&1 | tee -i $(LOG_DIR)/ligra-$(EXT)-encoder.log	
 	echo -e "\nWeighted:" 2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-encoder.log
 	$(EMULATOR) ./encoder.$(EXT) -s -w ../inputs/rMatGraph_WJ_5_100 ../inputs/rMatGraph_WJ_5_100.compressed \
 	2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-encoder.log
 
+
 run_decoder:
 	$(EMULATOR) ./decoder.$(EXT) -s ../inputs/rMatGraph_J_5_100.compressed ../inputs/rMatGraph_J_5_100_decoded \
 	2>&1 | tee -i $(LOG_DIR)/ligra-$(EXT)-decoder.log
+ifeq ($(compressed), 1)
 	echo -e "\nWeighted:" 2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-decoder.log
 	$(EMULATOR) ./decoder.$(EXT) -s -w ../inputs/rMatGraph_WJ_5_100.compressed ../inputs/rMatGraph_WJ_5_100_decoded \
 	2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-decoder.log
+endif
 
 run_BellmanFord:
 	echo -e "Weighted:" 2>&1 | tee -i $(LOG_DIR)/ligra-$(EXT)-BellmanFord.log
 	$(EMULATOR) ./BellmanFord.$(EXT) -s ../inputs/rMatGraph_WJ_5_100 \
 	2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-BellmanFord.log
+ifeq ($(compressed), 1)
 	echo -e "\nWeighted & Compressed:" 2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-BellmanFord.log
 	$(EMULATOR) ./BellmanFord.$(EXT) -s -c ../inputs/rMatGraph_WJ_5_100.compressed \
 	2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-BellmanFord.log
+endif
 
 run_CF:
 	echo -e "Weighted:" 2>&1 | tee -i $(LOG_DIR)/ligra-$(EXT)-CF.log
 	$(EMULATOR) ./CF.$(EXT) -s ../inputs/rMatGraph_WJ_5_100 \
 	2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-CF.log
+ifeq ($(compressed), 1)
 	echo -e "\nWeighted & Compressed:" 2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-CF.log
 	$(EMULATOR) ./CF.$(EXT) -s -c ../inputs/rMatGraph_WJ_5_100.compressed \
 	2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-CF.log
+endif
 
 run_Triangle:
 	$(EMULATOR) ./Triangle.$(EXT) -s ../inputs/rMatGraph_J_5_100 \
 	2>&1 | tee -i $(LOG_DIR)/ligra-$(EXT)-Triangle.log
+ifeq ($(compressed), 1)
 	echo -e "\nCompressed:" 2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-Triangle.log
 	$(EMULATOR) ./Triangle.$(EXT) -c ../inputs/rMatGraph_J_5_100.compressed \
 	2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-Triangle.log
+endif
 
 run_%:
 	$(EMULATOR) ./$*.$(EXT) -s ../inputs/rMatGraph_J_5_100 \
 	2>&1 | tee -i $(LOG_DIR)/ligra-$(EXT)-$*.log
+ifeq ($(compressed), 1)
 	echo -e "\nCompressed:" 2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-$*.log
 	$(EMULATOR) ./$*.$(EXT) -s -c ../inputs/rMatGraph_J_5_100.compressed \
 	2>&1 | tee -ia $(LOG_DIR)/ligra-$(EXT)-$*.log
-	
+endif
 
 .PHONY : clean
 

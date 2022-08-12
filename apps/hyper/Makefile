@@ -56,6 +56,8 @@ EMULATOR = $(INSTALL_DIR)/bin/qemu-riscv64 -L $(INSTALL_DIR)/sysroot
 RISCV_FLAG = -DRISCV
 endif
 
+compressed ?= 0
+
 COMMON= ligra.h graph.h compressedVertex.h vertex.h utils.h IO.h parallel.h gettime.h index_map.h maybe.h sequence.h edgeMap_utils.h binary_search.h quickSort.h blockRadixSort.h transpose.h parseCommandLine.h byte.h byteRLE.h nibble.h byte-pd.h byteRLE-pd.h nibble-pd.h vertexSubset.h decoder.C hypergraphIO.h hygra.h bucket.h counting_sort.h dyn_arr.h edgeMapReduce.h histogram.h sequentialHT.h hypergraphEncoder.C hypergraphDecoder.C
 
 ALL= hypergraphEncoder hypergraphDecoder HyperReader WeightedHyperReader HyperBFS HyperCC HyperSSSP HyperPageRank HyperBC HyperBPath HyperMIS HyperKCore HyperKCore-Efficient
@@ -88,34 +90,43 @@ run_hypergraphEncoder:
 	$(EMULATOR) ./hypergraphEncoder.$(EXT) -s -w ../../inputs/randHypergraph_weighted ../../inputs/randHypergraph_weighted.compressed \
 	2>&1 | tee -ia $(LOG_DIR)/hygra-$(EXT)-hypergraphEncoder.log
 
+
 run_hypergraphDecoder:
 	$(EMULATOR) ./hypergraphDecoder.$(EXT) -s ../../inputs/randHypergraph.compressed ../../inputs/randHypergraph_decoded \
 	2>&1 | tee -i $(LOG_DIR)/hygra-$(EXT)-hypergraphDecoder.log
+ifeq ($(compressed), 1)
 	echo -e "\nWeighted:" 2>&1 | tee -ia $(LOG_DIR)/hygra-$(EXT)-hypergraphDecoder.log
 	$(EMULATOR) ./hypergraphDecoder.$(EXT) -s -w ../../inputs/randHypergraph_weighted.compressed ../../inputs/randHypergraph_weighted_decoded \
 	2>&1 | tee -ia $(LOG_DIR)/hygra-$(EXT)-hypergraphDecoder.log
+endif
 
 
 run_WeightedHyperReader:
 	$(EMULATOR) ./WeightedHyperReader.$(EXT) -s ../../inputs/randHypergraph_weighted \
 	2>&1 | tee -i $(LOG_DIR)/hygra-$(EXT)-WeightedHyperReader.log
+ifeq ($(compressed), 1)
 	echo -e "\nCompressed:" 2>&1 | tee -ia $(LOG_DIR)/hygra-$(EXT)-WeightedHyperReader.log
 	$(EMULATOR) ./WeightedHyperReader.$(EXT) -s -c ../../inputs/randHypergraph_weighted.compressed \
 	2>&1 | tee -ia $(LOG_DIR)/hygra-$(EXT)-WeightedHyperReader.log
+endif
 
 run_HyperSSSP:
 	$(EMULATOR) ./HyperSSSP.$(EXT) -s ../../inputs/randHypergraph_weighted \
 	2>&1 | tee -i $(LOG_DIR)/hygra-$(EXT)-HyperSSSP.log
+ifeq ($(compressed), 1)
 	echo -e "\nCompressed:" 2>&1 | tee -ia $(LOG_DIR)/hygra-$(EXT)-HyperSSSP.log
 	$(EMULATOR) ./HyperSSSP.$(EXT) -s -c ../../inputs/randHypergraph_weighted.compressed \
 	2>&1 | tee -ia $(LOG_DIR)/hygra-$(EXT)-HyperSSSP.log
+endif
 
 run_%:
 	$(EMULATOR) ./$*.$(EXT) -s ../../inputs/randHypergraph \
 	2>&1 | tee -i $(LOG_DIR)/hygra-$(EXT)-$*.log
+ifeq ($(compressed), 1)
 	echo -e "\nCompressed:" 2>&1 | tee -ia $(LOG_DIR)/hygra-$(EXT)-$*.log
 	$(EMULATOR) ./$*.$(EXT) -s -c ../../inputs/randHypergraph.compressed \
 	2>&1 | tee -ia $(LOG_DIR)/hygra-$(EXT)-$*.log
+endif
 
 .PHONY : clean
 
