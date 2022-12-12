@@ -50,7 +50,7 @@ ifeq ($(EXT),x86)
 TOOLCHAIN_PREFIX=
 EMULATOR =
 else
-TOOLCHAIN_PREFIX=$(RV64_TOOLCHAIN_PREFIX)
+TOOLCHAIN_PREFIX=riscv64-unknown-linux-gnu-
 EMULATOR = $(INSTALL_DIR)/bin/qemu-riscv64 -L $(INSTALL_DIR)/sysroot
 endif
 
